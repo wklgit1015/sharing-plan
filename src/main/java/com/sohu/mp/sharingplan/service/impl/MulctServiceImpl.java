@@ -2,6 +2,7 @@ package com.sohu.mp.sharingplan.service.impl;
 
 import com.sohu.mp.common.enums.StagedRightsInterestsEnum;
 import com.sohu.mp.common.util.CodecUtil;
+import com.sohu.mp.common.util.DateUtil;
 import com.sohu.mp.sharingplan.dao.accounts.AssetMapper;
 import com.sohu.mp.sharingplan.dao.accounts.ProfitMapper;
 import com.sohu.mp.sharingplan.dao.redis.impl.RedisLockDao;
@@ -90,7 +91,8 @@ public class MulctServiceImpl implements MulctService {
     private static String generateMulctVM(MpProfile mpProfile, MulctDetail mulctDetail, String reason, String operator) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("mpProfile", mpProfile);
-        context.put("mulctDetail", mulctDetail);
+        context.put("amount", mulctDetail.getAmount());
+        context.put("periodDay", DateUtil.parseDate2DayStr(mulctDetail.getPeriodDay()));
         context.put("reason", reason);
         context.put("operator", operator);
         InputStream inputStream = MulctServiceImpl.class.getResourceAsStream("/template/MulctResult.vm");
