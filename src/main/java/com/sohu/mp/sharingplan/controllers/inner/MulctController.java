@@ -31,6 +31,22 @@ public class MulctController {
     @Resource
     private MulctService mulctService;
 
+    /**
+     * @api {POST} /inner/mulct 添加罚金接口
+     * @apiName mulct
+     * @apiGroup mulct
+     * @apiParam {String} sign 权限验证码, 找mp开通
+     * @apiParam {String} reason 罚金原因
+     * @apiParam {String} passport 自媒体passport
+     * @apiParam {String} operator 操作人公司邮箱地址
+     * @apiParam {Date} periodDay 处罚的收益日期, 格式: yyyy-MM-dd
+     * @apiSuccess (200){json} responseBody success
+     * @apiSuccessExample Success-Response
+     * HTTP/1.1 200 OK
+     * {
+     * "success": true //除此结果之外, 均为失败
+     * }
+     */
     @PostMapping("/mulct")
     public ResponseEntity mulct(@RequestParam("sign") String sign,
                                 @RequestParam("reason") String reason,
