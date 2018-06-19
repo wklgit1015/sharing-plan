@@ -1,0 +1,86 @@
+spring:
+  profiles:
+    active: dev
+  application:
+      name: sharing-plan
+  aop:
+    auto: true
+    proxy-target-class: true
+  mvc:
+    throw-exception-if-no-handler-found: true
+    servlet:
+      load-on-startup: 1
+  resources:
+    add-mappings: false
+  datasource:
+    min-poolsize: 1
+    max-poolsize: 10
+    connect-timeout-ms: 3000
+    validate-timeout-ms: 3000
+server:
+  port: 9999
+  tomcat:
+    accesslog:
+      enabled: true
+      directory: /opt/logs/mp-common-api
+      pattern: '%t %a %A %m %U%q %s %D %I %B'
+      prefix: access
+      rename-on-rotate: true
+      request-attributes-enabled: true
+---
+spring:
+  profiles: dev
+  datasource:
+    accounts:
+      read:
+        url: jdbc:mysql://10.11.173.156:3306/test?useUnicode=true&charset=utf8mb4&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+        username: mp_user
+        password: mpsohu&*
+      write:
+        url: jdbc:mysql://10.11.173.156:3306/test?useUnicode=true&charset=utf8mb4&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+        username: mp_user
+        password: mpsohu&*
+  redis:
+    cluster:
+      max-redirects: 5
+      nodes: 10.11.174.19:6003, 10.11.174.39:6003, 10.11.174.40:6003, 10.11.174.20:6004, 10.11.173.239:6004, 10.11.173.240:6004
+    password: YXBpLXNlcnZpY2UtMTUwMTM0MjU4MQ==
+
+---
+spring:
+  profiles: test
+  datasource:
+    accounts:
+      read:
+        url: jdbc:mysql://10.11.173.156:3306/test?useUnicode=true&charset=utf8mb4&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+        username: mp_user
+        password: mpsohu&*
+      write:
+        url: jdbc:mysql://10.11.173.156:3306/test?useUnicode=true&charset=utf8mb4&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&zeroDateTimeBehavior=convertToNull
+        username: mp_user
+        password: mpsohu&*
+  redis:
+    cluster:
+      max-redirects: 5
+      nodes: 10.11.174.19:6003, 10.11.174.39:6003, 10.11.174.40:6003, 10.11.174.20:6004, 10.11.173.239:6004, 10.11.173.240:6004
+    password: YXBpLXNlcnZpY2UtMTUwMTM0MjU4MQ==
+
+---
+spring:
+  profiles: prod
+  datasource:
+    max-poolsize: 10
+    accounts:
+      read:
+        url: jdbc:mysql://cmspickooro.db2.sohuno.com:3306/sohu_hao?useUnicode=true&charset=utf8mb4&characterEncoding=UTF-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull
+        username: sohu_hao_ro
+        password: 53iq29l9XV50f80
+      write:
+        url: jdbc:mysql://cmspickoorw.db2.sohuno.com:3306/sohu_hao?useUnicode=true&charset=utf8mb4&characterEncoding=UTF-8&autoReconnect=true&zeroDateTimeBehavior=convertToNull
+        username: sohu_hao_rw
+        password: 92905yJHHsXZWy5
+  redis:
+    cluster:
+      max-redirects: 5
+      nodes: 10.16.38.41:7600, 10.16.38.42:7600, 10.16.38.43:7600, 10.16.38.44:7600, 10.16.38.45:7600, 10.16.38.41:7601, 10.16.38.42:7601, 10.16.38.43:7601, 10.16.38.44:7601, 10.16.38.45:7601, 10.16.38.41:7602, 10.16.38.42:7602, 10.16.38.43:7602, 10.16.38.44:7602, 10.16.38.45:7602
+    password: YXBpLXNlcnZpY2UtMTUwMTM0MjU4MQ==

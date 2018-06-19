@@ -1,0 +1,52 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=GBK"/>
+    <style type="text/css">
+        table {
+            font-size: 15px;
+            border-collapse: collapse;
+            width: 100%;
+            border: 0;
+        }
+
+        th {
+            text-align: center;
+            background-color: #313aaf;
+            color: white;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2
+        }
+    </style>
+</head>
+<body>
+<div>
+    <table>
+        <tbody>
+        <tr>
+            <th>用户昵称</th>
+            <th>passport</th>
+            <th>处罚日期</th>
+            <th>处罚理由</th>
+            <th>处罚金额</th>
+            <th>操作人</th>
+        </tr>
+            <tr>
+                <td>$mpProfile.userName</td>
+                <td>$mpProfile.passport</td>
+                <td>$mulctDetail.periodDay</td>
+                <td>$reason</td>
+                <td>$mulctDetail.amount</td>
+                <td>$operator</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
