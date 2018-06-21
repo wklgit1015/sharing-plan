@@ -34,7 +34,7 @@ public class CommonApiServiceImpl implements CommonApiService {
     }
 
     private String getEnvEmails(String emails) {
-        if (environmentUtil.isProductionEnv()) {
+        if (environmentUtil.isProductionEnv() || environmentUtil.isTestEnv()) {
             return emails;
         }
         return "jinwanglv213697@sohu-inc.com";
