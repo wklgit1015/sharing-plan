@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
-@MapperScan(basePackages = "com.sohu.mp.sharingplan.dao.mp.impl", sqlSessionFactoryRef = NewMpDatasourceConfig.SQL_SESSION_FACTORY_NAME)
+@MapperScan(basePackages = "com.sohu.mp.sharingplan.dao.accounts", sqlSessionFactoryRef = NewMpDatasourceConfig.SQL_SESSION_FACTORY_NAME)
 public class NewMpDatasourceConfig {
 
     static final String SQL_SESSION_FACTORY_NAME = "newMpSessionFactory";
