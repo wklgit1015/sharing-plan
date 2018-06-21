@@ -1,6 +1,7 @@
 package com.sohu.mp.sharingplan.service.impl;
 
 import com.sohu.mp.common.enums.StagedRightsInterestsEnum;
+import com.sohu.mp.common.exception.ServerErrorException;
 import com.sohu.mp.common.util.CodecUtil;
 import com.sohu.mp.common.util.DateUtil;
 import com.sohu.mp.sharingplan.dao.accounts.AssetMapper;
@@ -29,7 +30,6 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.Date;
-import java.util.List;
 
 @Service
 public class MulctServiceImpl implements MulctService {
@@ -37,6 +37,7 @@ public class MulctServiceImpl implements MulctService {
     private static final Logger logger = LoggerFactory.getLogger(MulctServiceImpl.class);
 
     private static final String LOCK_PREFIX = "mulct";
+    private static final String ERROR_EMAIL = "jinwanglv213697@sohu-inc.com";
 
     @Resource
     private AssetMapper assetMapper;
@@ -75,16 +76,18 @@ public class MulctServiceImpl implements MulctService {
         if (asset.getValidAmount().subtract(profit.getAmount()).compareTo(BigDecimal.valueOf(0)) < 0) {
             throw new AmountCheckException("after mulct, asset valid amount less than zero");
         }
-        MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(), profit.getRightInterestCode(),
-                StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), periodDay, profit.getAmount(), 1, operator, reason);
-        sharingPlanTransaction.dealMulct(asset.getId(), profit.getId(), mulctDetail);
-        logger.info("[mulct success]: passport={}, periodDay={}, operator={}", mpProfile.getPassport(), periodDay, operator);
-        redisLockDao.unLock(LOCK_PREFIX, mpProfile.getPassport());
         try {
+            MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(), profit.getRightInterestCode(),
+                    StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), periodDay, profit.getAmount(), 1, operator, reason);
+            sharingPlanTransaction.dealMulct(asset.getId(), profit.getId(), mulctDetail);
+            logger.info("[mulct success]: passport={}, periodDay={}, operator={}", mpProfile.getPassport(), periodDay, operator);
+            redisLockDao.unLock(LOCK_PREFIX, mpProfile.getPassport());
             String content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-            commonApiService.sendEmail("【处罚操作结果通知】", content,operator);
+            commonApiService.sendEmail("【处罚操作结果通知】", content, operator);
         } catch (Exception e) {
             logger.error("[send mulct result email error]: {}", e.getMessage());
+            commonApiService.sendEmail("【处罚操作报错信息】", e.getMessage(), ERROR_EMAIL);
+            throw new ServerErrorException();
         }
     }
 
