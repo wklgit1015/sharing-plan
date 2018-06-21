@@ -22,7 +22,7 @@ server:
   tomcat:
     accesslog:
       enabled: true
-      directory: /opt/logs/mp-common-api
+      directory: /opt/logs/sharing-plan
       pattern: '%t %a %A %m %U%q %s %D %I %B'
       prefix: access
       rename-on-rotate: true
