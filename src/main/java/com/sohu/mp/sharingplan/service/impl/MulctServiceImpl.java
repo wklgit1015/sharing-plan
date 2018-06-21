@@ -82,10 +82,10 @@ public class MulctServiceImpl implements MulctService {
             logger.info("[mulct success]: passport={}, periodDay={}, operator={}", mpProfile.getPassport(), periodDay, operator);
             redisLockDao.unLock(LOCK_PREFIX, mpProfile.getPassport());
             String content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-            commonApiService.sendEmail("【处罚操作结果通知】", content, operator);
+            commonApiService.sendEmail("【处罚操作结果通知】", content,operator);
         } catch (Exception e) {
             logger.error("[send mulct result email error]: {}", e.getMessage());
-            commonApiService.sendEmail("【处罚操作结果报错】", e.getMessage(), ERROR_EMAIL);
+            commonApiService.sendEmail("【处罚操作结果报错】", e.getMessage(),ERROR_EMAIL);
         }
     }
 
