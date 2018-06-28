@@ -60,7 +60,7 @@ public class MulctController {
         LocalDate now = LocalDate.now();
         LocalDate period = DateUtil.convert2LocalDate(periodDay);
         if (period.getYear() != now.getYear() || period.getMonth() != now.getMonth()) {
-            throw new InvalidParameterException("只能处罚当月计划收益");
+//            throw new InvalidParameterException("只能处罚当月计划收益");
         }
 
         MpProfile mpProfile = checkParam(sign, reason, passport, operator);
