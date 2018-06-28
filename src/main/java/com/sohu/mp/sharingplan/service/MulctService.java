@@ -6,8 +6,12 @@ import java.util.Date;
 
 public interface MulctService {
 
-    boolean canLockMulct(String passport);
+    boolean canLockBaseMulct(String passport);
 
-    void dealMulct(MpProfile mpProfile, String operator, Date periodDay, String reason);
+    boolean canLockBonusMulct(String passport);
+
+    void dealBaseMulct(MpProfile mpProfile, String operator, Date periodDay, String reason);
+
+    void dealBonusMulct(MpProfile mpProfile, String operator, String code, String reason);
 
 }

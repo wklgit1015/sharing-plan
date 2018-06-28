@@ -22,7 +22,7 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @RestController
-@RequestMapping("/inner")
+@RequestMapping("/inner/mulct")
 public class MulctController {
 
     @Resource
@@ -32,14 +32,14 @@ public class MulctController {
     private MulctService mulctService;
 
     /**
-     * @api {POST} /inner/mulct 添加罚金接口
+     * @api {POST} /inner/mulct/base 处罚base接口
      * @apiName mulct
      * @apiGroup mulct
      * @apiParam {String} sign 权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
      * @apiParam {String} passport 自媒体passport
      * @apiParam {String} operator 操作人公司邮箱地址
-     * @apiParam {Date} periodDay 处罚的收益日期, 格式: yyyy-MM-dd
+     * @apiParam {Date} periodDay 处罚的收益日期,只能处罚当月base。 格式: yyyy-MM-dd
      * @apiSuccess (200){json} responseBody success
      * @apiSuccessExample Success-Response
      * HTTP/1.1 200 OK
@@ -47,35 +47,72 @@ public class MulctController {
      * "success": true //除此结果之外, 均为失败
      * }
      */
-    @PostMapping("/mulct")
-    public ResponseEntity mulct(@RequestParam("sign") String sign,
-                                @RequestParam("reason") String reason,
-                                @RequestParam("passport") String passport,
-                                @RequestParam("operator") String operator,
-                                @DateTimeFormat(pattern = "yyyy-MM-dd") Date periodDay) {
+    @PostMapping("/base")
+    public ResponseEntity baseMulct(@RequestParam("sign") String sign,
+                                    @RequestParam("reason") String reason,
+                                    @RequestParam("passport") String passport,
+                                    @RequestParam("operator") String operator,
+                                    @DateTimeFormat(pattern = "yyyy-MM-dd") Date periodDay) {
         if (periodDay == null) {
             throw new InvalidParameterException("periodDay param is null");
         }
+
+        LocalDate now = LocalDate.now();
+        LocalDate period = DateUtil.convert2LocalDate(periodDay);
+        if (period.getYear() != now.getYear() || period.getMonth() != now.getMonth()) {
+            throw new InvalidParameterException("只能处罚当月计划收益");
+        }
+
+        MpProfile mpProfile = checkParam(sign, reason, passport, operator);
+        if (!mulctService.canLockBaseMulct(passport)) {
+            throw new InvalidParameterException("base it is mulcting, please wait");
+        }
+        mulctService.dealBaseMulct(mpProfile, operator, periodDay, reason);
+        return SuccessResponse.INSTANCE;
+    }
+
+    /**
+     * @api {POST} /inner/mulct/bonus 处罚bonus接口
+     * @apiName mulct
+     * @apiGroup mulct
+     * @apiParam {String} sign 权限验证码, 找mp开通
+     * @apiParam {String} reason 罚金原因
+     * @apiParam {String} passport 自媒体passport
+     * @apiParam {String} operator 操作人公司邮箱地址
+     * @apiParam {String} code 处罚的某期分成code,只能处罚上个月bonus。 格式: 分成五月计划为-> flow201805
+     * @apiSuccess (200){json} responseBody success
+     * @apiSuccessExample Success-Response
+     * HTTP/1.1 200 OK
+     * {
+     * "success": true //除此结果之外, 均为失败
+     * }
+     */
+    @PostMapping("/bonus")
+    public ResponseEntity bonusMulct(@RequestParam("sign") String sign,
+                                     @RequestParam("code") String code,
+                                     @RequestParam("reason") String reason,
+                                     @RequestParam("passport") String passport,
+                                     @RequestParam("operator") String operator) {
+        MpProfile mpProfile = checkParam(sign, reason, passport, operator);
+        if (!mulctService.canLockBonusMulct(passport)) {
+            throw new InvalidParameterException("bonus it is mulcting, please wait");
+        }
+        mulctService.dealBonusMulct(mpProfile, operator, code, reason);
+        return SuccessResponse.INSTANCE;
+    }
+
+    private MpProfile checkParam(String sign, String reason, String passport, String operator) {
         if (StringUtils.isBlank(reason)) {
             throw new InvalidParameterException("reason is empty");
         }
         if (!sign.equals(CodecUtil.hmacSha1(operator))) {
             throw MulctNoAuthException.INSTANCE;
         }
-        LocalDate now = LocalDate.now();
-        LocalDate period = DateUtil.convert2LocalDate(periodDay);
-        if (period.getYear() != now.getYear() || period.getMonth() != now.getMonth()) {
-            throw new InvalidParameterException("只能处罚当月计划收益");
-        }
         MpProfile mpProfile = mpProfileService.getByPassport(passport);
         if (mpProfile == null) {
             throw UserNotFoundException.INSTANCE;
         }
-        if (!mulctService.canLockMulct(passport)) {
-            throw new InvalidParameterException("it is mulcting, please wait");
-        }
-        mulctService.dealMulct(mpProfile, operator, periodDay, reason);
-        return SuccessResponse.INSTANCE;
+        return mpProfile;
     }
 
 }
