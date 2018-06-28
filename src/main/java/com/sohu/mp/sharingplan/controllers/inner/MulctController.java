@@ -33,7 +33,7 @@ public class MulctController {
 
     /**
      * @api {POST} /inner/mulct/base 处罚base接口
-     * @apiName mulct
+     * @apiName baseMulct
      * @apiGroup mulct
      * @apiParam {String} sign 权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
@@ -73,7 +73,7 @@ public class MulctController {
 
     /**
      * @api {POST} /inner/mulct/bonus 处罚bonus接口
-     * @apiName mulct
+     * @apiName bonusMulct
      * @apiGroup mulct
      * @apiParam {String} sign 权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
