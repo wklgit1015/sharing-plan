@@ -58,6 +58,9 @@ public class MulctController {
         }
 
         LocalDate now = LocalDate.now();
+        if (DateUtil.judgeTodayFirstDayOfMonth()) {
+            now = DateUtil.convert2LocalDate(DateUtil.getPreFirstDayOfMonth(1));
+        }
         LocalDate period = DateUtil.convert2LocalDate(periodDay);
         if (period.getYear() != now.getYear() || period.getMonth() != now.getMonth()) {
             throw new InvalidParameterException("只能处罚当月计划收益");
