@@ -19,23 +19,4 @@ public class Bonus {
     private int status;
     private Date createTime;
     private Date modifiedTime;
-
-    private Integer mpChannelId;
-
-    public Bonus() {
-    }
-
-    public Bonus(int userId, String passport, String rightInterestCode, BigDecimal amount, int source,
-                 int type, String sourceName, String typeName, int status, Integer mpChannelId) {
-        this.userId = userId;
-        this.passport = passport;
-        this.rightInterestCode = rightInterestCode;
-        this.amount = amount;
-        this.source = source;
-        this.type = type;
-        this.sourceName = sourceName;
-        this.typeName = typeName;
-        this.status = status;
-        this.mpChannelId = mpChannelId;
-    }
 }
