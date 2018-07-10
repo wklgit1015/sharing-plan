@@ -12,6 +12,7 @@ public class Bonus {
     private String passport;
     private String rightInterestCode;
     private BigDecimal amount;
+    private BigDecimal mulct;
     private int source;
     private int type;
     private String sourceName;
