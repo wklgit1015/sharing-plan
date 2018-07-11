@@ -10,10 +10,17 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.regex.Pattern;
 
+/**
+ * @author lvjinwang
+ * @date 2018/7/10
+ */
 @Component
 @Aspect
 public class DataSourceAop {
+
+    private static final Pattern READ_PATTERN = Pattern.compile("^(query|get|select|by|is|count|list)");
 
     @Before("execution(* com.sohu.mp.sharingplan.dao.accounts..*.*(..))")
     public void setDataSource(JoinPoint point) {
@@ -32,8 +39,7 @@ public class DataSourceAop {
 
     private void simpleSetDataSource(JoinPoint point) {
         String methodName = point.getSignature().getName();
-        if (methodName.startsWith("query") || methodName.startsWith("get")
-                || methodName.startsWith("select")|| methodName.startsWith("by")|| methodName.startsWith("is")) {
+        if (READ_PATTERN.matcher(methodName).find()) {
             DynamicDatasource.setRead();
         } else {
             DynamicDatasource.setWrite();

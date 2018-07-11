@@ -35,8 +35,9 @@ public class SharingPlanTransaction {
 
     @Transactional(value = "mpTransaction", rollbackFor = Exception.class)
     public void dealBonusMulct(Integer assetId, long userId, String code, MulctDetail mulctDetail) {
-        if (assetId != null)
+        if (assetId != null) {
             assetMapper.addMulct(assetId, mulctDetail.getAmount());
+        }
         //由于有多条bonus 所以不用加减操作处罚
         bonusMapper.addMulct(code, userId);
         mulctDetailMapper.addMulct(mulctDetail);

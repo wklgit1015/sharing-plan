@@ -43,7 +43,8 @@ public class HttpClientUtil {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE).setContentType(ContentType.MULTIPART_FORM_DATA.withCharset(CHARSET));
             for (File file : files) {
-                builder.addPart(name, new FileBody(file));  //name 为请求的文件流的参数名称
+                //name 为请求的文件流的参数名称
+                builder.addPart(name, new FileBody(file));
             }
             for (Map.Entry<String, String> entry : params.entrySet()) {
                 builder.addTextBody(entry.getKey(), entry.getValue(), ContentType.MULTIPART_FORM_DATA.withCharset(CHARSET));
@@ -52,10 +53,11 @@ public class HttpClientUtil {
             httppost.setEntity(entity);
             HttpResponse response = httpclient.execute(httppost);
             int code = response.getStatusLine().getStatusCode();
-            if (code == HttpStatus.SC_OK)
+            if (code == HttpStatus.SC_OK) {
                 log.info("[send file email success]: {}", getResult(response));
-            else
+            } else {
                 log.error("[send file email error]: {}", getResult(response));
+            }
             return code;
         } catch (Exception e) {
             log.error("[post with file error]: error={}", e.getMessage());

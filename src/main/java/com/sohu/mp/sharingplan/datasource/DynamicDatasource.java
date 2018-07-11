@@ -3,21 +3,27 @@ package com.sohu.mp.sharingplan.datasource;
 import com.sohu.mp.sharingplan.enums.DataSourceTypeEnum;
 import org.springframework.jdbc.datasource.lookup.AbstractRoutingDataSource;
 
+/**
+ * @author zouchangjing
+ */
 public class DynamicDatasource extends AbstractRoutingDataSource {
 
     private static class DynamicDataSourceHolder {
 
-        //使用ThreadLocal来保存当前线程需要使用的 dataSource 的 key。保证线程安全
-        private static final ThreadLocal<String> holder = new ThreadLocal<>();
+        /**
+         * 使用ThreadLocal来保存当前线程需要使用的 dataSource 的 key。保证线程安全
+         */
+        private static final ThreadLocal<String> HOLDER = new ThreadLocal<>();
 
         private static void setDataSourceKey(String key) {
-            holder.set(key);
+            HOLDER.set(key);
         }
 
         private static String getDataSourceKey() {
-            String key = holder.get();
+            String key = HOLDER.get();
             if (null == key) {
-                key = DataSourceTypeEnum.READ.getName();   //默认写库
+                //默认读库
+                key = DataSourceTypeEnum.READ.getName();
             }
             return key;
         }

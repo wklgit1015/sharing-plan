@@ -19,9 +19,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Repository
-public abstract class RedisDao<T> {
+public abstract class AbstractRedisDao<T> {
 
-    private static final Logger log = LoggerFactory.getLogger(RedisDao.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractRedisDao.class);
 
     @Resource
     private RedisTemplate<String, String> redisTemplate;

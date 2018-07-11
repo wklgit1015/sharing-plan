@@ -1,6 +1,13 @@
 package com.sohu.mp.sharingplan.enums;
 
+/**
+ * @author zhuchen
+ */
 public enum DataSourceTypeEnum {
+	/**
+	 * 写库
+	 * 读库
+	 */
 	WRITE("write"),
 	READ("read");
 

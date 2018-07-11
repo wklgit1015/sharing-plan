@@ -44,8 +44,9 @@ public class MpManagedTransaction extends SpringManagedTransaction {
      */
     @Override
     public void commit() throws SQLException {
-        if (TransactionSynchronizationManager.isActualTransactionActive())
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
             return;
+        }
         for (Connection conn : map.values()) {
             if (conn != null && !conn.getAutoCommit()) {
                 if (LOGGER.isDebugEnabled()) {
@@ -58,8 +59,9 @@ public class MpManagedTransaction extends SpringManagedTransaction {
 
     @Override
     public void rollback() throws SQLException {
-        if (TransactionSynchronizationManager.isActualTransactionActive())
+        if (TransactionSynchronizationManager.isActualTransactionActive()) {
             return;
+        }
         for (Connection conn : map.values()) {
             if (conn != null && !conn.getAutoCommit()) {
                 if (LOGGER.isDebugEnabled()) {

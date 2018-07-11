@@ -14,16 +14,16 @@ public class EnvironmentUtil {
 
     public boolean isProductionEnv() {
         String[] profiles = environment.getActiveProfiles();
-        return Arrays.stream(profiles).anyMatch(env -> env.equalsIgnoreCase("prod"));
+        return Arrays.stream(profiles).anyMatch("prod"::equalsIgnoreCase);
     }
 
     public boolean isTestEnv() {
         String[] profiles = environment.getActiveProfiles();
-        return Arrays.stream(profiles).anyMatch(env -> env.equalsIgnoreCase("test"));
+        return Arrays.stream(profiles).anyMatch("test"::equalsIgnoreCase);
     }
 
     public boolean isDevEnv() {
         String[] profiles = environment.getActiveProfiles();
-        return Arrays.stream(profiles).anyMatch(env -> env.equalsIgnoreCase("dev"));
+        return Arrays.stream(profiles).anyMatch("dev"::equalsIgnoreCase);
     }
 }

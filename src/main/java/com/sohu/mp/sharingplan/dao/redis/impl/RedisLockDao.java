@@ -1,10 +1,10 @@
 package com.sohu.mp.sharingplan.dao.redis.impl;
 
-import com.sohu.mp.sharingplan.dao.redis.RedisDao;
+import com.sohu.mp.sharingplan.dao.redis.AbstractRedisDao;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class RedisLockDao extends RedisDao {
+public class RedisLockDao extends AbstractRedisDao<String> {
 
     private static final String KEY_FORMAT = "lock_%s_%s";
     private static final long EXPIRES = 5;
