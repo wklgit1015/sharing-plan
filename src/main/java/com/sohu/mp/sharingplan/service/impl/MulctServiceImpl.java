@@ -4,6 +4,7 @@ import com.sohu.mp.common.enums.MulctEnum;
 import com.sohu.mp.common.enums.ProfitStatusEnum;
 import com.sohu.mp.common.enums.StagedRightsInterestsEnum;
 import com.sohu.mp.common.exception.InvalidParameterException;
+import com.sohu.mp.common.exception.ServerErrorException;
 import com.sohu.mp.common.util.CodecUtil;
 import com.sohu.mp.common.util.DateUtil;
 import com.sohu.mp.sharingplan.dao.accounts.AssetMapper;
@@ -92,11 +93,7 @@ public class MulctServiceImpl implements MulctService {
 
         redisLockDao.unLock(BASE_LOCK_PREFIX, mpProfile.getPassport());
         String content = null;
-        try {
-            content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
         commonApiService.sendEmail("【base处罚操作结果通知】", content, operator);//发送邮件通知
     }
 
@@ -127,17 +124,14 @@ public class MulctServiceImpl implements MulctService {
         logger.info("[bonus mulct success]: passport={}, code={}, operator={}", mpProfile.getPassport(), code, operator);
         redisLockDao.unLock(BONUS_LOCK_PREFIX, mpProfile.getPassport());
         String content = null;
-        try {
-            content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
         commonApiService.sendEmail("【bonus处罚操作结果通知】", content, operator);
     }
 
 //    检查资产
     private Asset checkAsset(long userId, BigDecimal mulct) {
-        Asset asset = assetMapper.getByUserSourceWriteSource(userId, StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
+        Asset asset = assetMapper.getByUserSourceWriteSource(userId,
+                StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
         if (asset == null) {
             throw new AmountCheckException("asset is null");
         }
@@ -148,7 +142,8 @@ public class MulctServiceImpl implements MulctService {
     }
 
 //    生成罚金VM
-    private static String generateMulctVM(MpProfile mpProfile, MulctDetail mulctDetail, String reason, String operator) throws IOException {
+    private static String generateMulctVM(MpProfile mpProfile, MulctDetail mulctDetail,
+                                          String reason, String operator){
         VelocityContext context = new VelocityContext();
         context.put("mpProfile", mpProfile);
         context.put("amount", mulctDetail.getAmount());
@@ -156,14 +151,20 @@ public class MulctServiceImpl implements MulctService {
         context.put("reason", reason);
         context.put("operator", operator);
         InputStream inputStream = MulctServiceImpl.class.getResourceAsStream("/template/MulctResult.vm");
-        Reader reader = new InputStreamReader(inputStream, "UTf-8");
-        StringWriter writer = new StringWriter();
-        Velocity.evaluate(context, writer, "", reader);
-        String result =writer.toString();
-        inputStream.close();
-        reader.close();
-        writer.close();
-        return result;
+        Reader reader = null;
+        try {
+            reader = new InputStreamReader(inputStream, "UTf-8");
+            StringWriter writer = new StringWriter();
+            Velocity.evaluate(context, writer, "", reader);
+            String result =writer.toString();
+            inputStream.close();
+            reader.close();
+            writer.close();
+            return result;
+        } catch (IOException e) {
+            logger.error("Velocity模板填充失败",e);
+            throw new ServerErrorException();
+        }
     }
 
     public static void main(String[] args) {
