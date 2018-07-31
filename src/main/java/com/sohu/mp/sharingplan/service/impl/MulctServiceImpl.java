@@ -4,7 +4,6 @@ import com.sohu.mp.common.enums.MulctEnum;
 import com.sohu.mp.common.enums.ProfitStatusEnum;
 import com.sohu.mp.common.enums.StagedRightsInterestsEnum;
 import com.sohu.mp.common.exception.InvalidParameterException;
-import com.sohu.mp.common.exception.ServerErrorException;
 import com.sohu.mp.common.util.CodecUtil;
 import com.sohu.mp.common.util.DateUtil;
 import com.sohu.mp.sharingplan.dao.accounts.AssetMapper;
@@ -13,12 +12,7 @@ import com.sohu.mp.sharingplan.dao.accounts.ProfitMapper;
 import com.sohu.mp.sharingplan.dao.accounts.StagedRightsInterestsMapper;
 import com.sohu.mp.sharingplan.dao.redis.impl.RedisLockDao;
 import com.sohu.mp.sharingplan.enums.exception.AmountCheckException;
-import com.sohu.mp.sharingplan.model.Asset;
-import com.sohu.mp.sharingplan.model.Bonus;
-import com.sohu.mp.sharingplan.model.MpProfile;
-import com.sohu.mp.sharingplan.model.MulctDetail;
-import com.sohu.mp.sharingplan.model.Profit;
-import com.sohu.mp.sharingplan.model.StagedRightsInterests;
+import com.sohu.mp.sharingplan.model.*;
 import com.sohu.mp.sharingplan.service.CommonApiService;
 import com.sohu.mp.sharingplan.service.MulctService;
 import com.sohu.mp.sharingplan.transaction.SharingPlanTransaction;
@@ -30,11 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringWriter;
+import java.io.*;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -78,35 +68,41 @@ public class MulctServiceImpl implements MulctService {
         return redisLockDao.lock(BONUS_LOCK_PREFIX, passport);
     }
 
+//    处理base罚金
     @Override
     public void dealBaseMulct(MpProfile mpProfile, String operator, Date periodDay, String reason) {
         long userId = mpProfile.getId();
-        Profit profit = profitMapper.getByUserDayWriteSource(TableHashUtil.getProfitTableIndex(userId), userId, periodDay);
+        Profit profit = profitMapper.getByUserDayWriteSource(
+                TableHashUtil.getProfitTableIndex(userId), userId, periodDay);
         if (profit == null) {
             throw new AmountCheckException("day profit is null");
         }
         if (profit.getAmount().compareTo(BigDecimal.valueOf(0)) == 0) {
             throw new AmountCheckException("day profit is zero");
         }
-        Asset asset = checkAsset(userId, profit.getAmount());
+        Asset asset = checkAsset(userId, profit.getAmount()); //检查用户资产
+        MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(),
+                profit.getRightInterestCode(),
+                StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), periodDay,
+                profit.getAmount(), 1, MulctEnum.FLOW_BASE_MULCT.getType(), operator, reason);
+
+        sharingPlanTransaction.dealBaseMulct(asset.getId(), profit.getId(), mulctDetail);
+        logger.info("[base mulct success]: passport={}, periodDay={}, operator={}",
+                mpProfile.getPassport(), periodDay, operator);
+
+        redisLockDao.unLock(BASE_LOCK_PREFIX, mpProfile.getPassport());
+        String content = null;
         try {
-            MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(), profit.getRightInterestCode(),
-                    StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), periodDay,
-                    profit.getAmount(), 1, MulctEnum.FLOW_BASE_MULCT.getType(), operator, reason);
-            sharingPlanTransaction.dealBaseMulct(asset.getId(), profit.getId(), mulctDetail);
-            logger.info("[base mulct success]: passport={}, periodDay={}, operator={}", mpProfile.getPassport(), periodDay, operator);
-            redisLockDao.unLock(BASE_LOCK_PREFIX, mpProfile.getPassport());
-            String content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-            commonApiService.sendEmail("【base处罚操作结果通知】", content, operator);
-        } catch (Exception e) {
-            logger.error("[deal base mulct error]: {}", e.getMessage(), e);
-            commonApiService.sendEmail("【base处罚操作报错信息】", e.getMessage(), ERROR_EMAIL);
-            throw new ServerErrorException();
+            content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        commonApiService.sendEmail("【base处罚操作结果通知】", content, operator);//发送邮件通知
     }
 
+//    处理奖金罚金
     @Override
-    public void dealBonusMulct(MpProfile mpProfile, String operator, String code, String reason) {
+    public void dealBonusMulct(MpProfile mpProfile, String operator, String code, String reason){
         StagedRightsInterests sharingPlan = stagedRightsInterestsMapper.getByCode(code);
         if (sharingPlan == null || sharingPlan.getStartTime().compareTo(DateUtil.getPreFirstDayOfMonth(1)) != 0) {
             throw new InvalidParameterException("无效code, 只能处罚上月bonus");
@@ -119,28 +115,27 @@ public class MulctServiceImpl implements MulctService {
         if (bonus.getAmount().compareTo(BigDecimal.valueOf(0)) == 0) {
             throw new AmountCheckException("bonuses amount is zero");
         }
-
-        try {
-            MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(), code,
-                    StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), null,
-                    bonus.getAmount(), 1, MulctEnum.FLOW_BONUS_MULCT.getType(), operator, reason);
-            //由于奖金都是批量更新状态, 所以取第一个的状态
-            Integer assetId = null;
-            if (bonus.getStatus() == ProfitStatusEnum.VALID.getValue()) {
-                assetId = checkAsset(userId, bonus.getAmount()).getId();
-            }
-            sharingPlanTransaction.dealBonusMulct(assetId, userId, code, mulctDetail);
-            logger.info("[bonus mulct success]: passport={}, code={}, operator={}", mpProfile.getPassport(), code, operator);
-            redisLockDao.unLock(BONUS_LOCK_PREFIX, mpProfile.getPassport());
-            String content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-            commonApiService.sendEmail("【bonus处罚操作结果通知】", content, operator);
-        } catch (Exception e) {
-            logger.error("[deal bonus mulct error]: {}", e.getMessage(), e);
-            commonApiService.sendEmail("【bonus处罚操作报错信息】", e.getMessage(), ERROR_EMAIL);
-            throw new ServerErrorException();
+        MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(), code,
+                StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), null,
+                bonus.getAmount(), 1, MulctEnum.FLOW_BONUS_MULCT.getType(), operator, reason);
+        //由于奖金都是批量更新状态, 所以取第一个的状态
+        Integer assetId = null;
+        if (bonus.getStatus() == ProfitStatusEnum.VALID.getValue()) {
+            assetId = checkAsset(userId, bonus.getAmount()).getId();
         }
+        sharingPlanTransaction.dealBonusMulct(assetId, userId, code, mulctDetail);
+        logger.info("[bonus mulct success]: passport={}, code={}, operator={}", mpProfile.getPassport(), code, operator);
+        redisLockDao.unLock(BONUS_LOCK_PREFIX, mpProfile.getPassport());
+        String content = null;
+        try {
+            content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        commonApiService.sendEmail("【bonus处罚操作结果通知】", content, operator);
     }
 
+//    检查资产
     private Asset checkAsset(long userId, BigDecimal mulct) {
         Asset asset = assetMapper.getByUserSourceWriteSource(userId, StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
         if (asset == null) {
@@ -152,6 +147,7 @@ public class MulctServiceImpl implements MulctService {
         return asset;
     }
 
+//    生成罚金VM
     private static String generateMulctVM(MpProfile mpProfile, MulctDetail mulctDetail, String reason, String operator) throws IOException {
         VelocityContext context = new VelocityContext();
         context.put("mpProfile", mpProfile);
@@ -163,7 +159,7 @@ public class MulctServiceImpl implements MulctService {
         Reader reader = new InputStreamReader(inputStream, "UTf-8");
         StringWriter writer = new StringWriter();
         Velocity.evaluate(context, writer, "", reader);
-        String result = writer.toString();
+        String result =writer.toString();
         inputStream.close();
         reader.close();
         writer.close();

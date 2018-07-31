@@ -5,6 +5,7 @@ import com.sohu.mp.common.exception.UserNotFoundException;
 import com.sohu.mp.common.response.SuccessResponse;
 import com.sohu.mp.common.util.CodecUtil;
 import com.sohu.mp.common.util.DateUtil;
+import com.sohu.mp.sharingplan.annotation.MonitorServerError;
 import com.sohu.mp.sharingplan.enums.exception.MulctNoAuthException;
 import com.sohu.mp.sharingplan.model.MpProfile;
 import com.sohu.mp.sharingplan.service.MpProfileService;
@@ -24,6 +25,8 @@ import java.util.Date;
 @RestController
 @RequestMapping("/inner/mulct")
 public class MulctController {
+
+//    private static final Logger logger = LoggerFactory.getLogger(MulctController.class);
 
     @Resource
     private MpProfileService mpProfileService;
@@ -47,6 +50,7 @@ public class MulctController {
      * "success": true //除此结果之外, 均为失败
      * }
      */
+    @MonitorServerError
     @PostMapping("/base")
     public ResponseEntity baseMulct(@RequestParam("sign") String sign,
                                     @RequestParam("reason") String reason,
@@ -56,9 +60,8 @@ public class MulctController {
         if (periodDay == null) {
             throw new InvalidParameterException("periodDay param is null");
         }
-
         LocalDate now = LocalDate.now();
-        if (DateUtil.judgeTodayFirstDayOfMonth()) {
+        if (DateUtil.judgeTodayFirstDayOfMonth()) {//如果是本月的第一天
             now = DateUtil.convert2LocalDate(DateUtil.getPreFirstDayOfMonth(1));
         }
         LocalDate period = DateUtil.convert2LocalDate(periodDay);
@@ -66,6 +69,7 @@ public class MulctController {
             throw new InvalidParameterException("只能处罚当月计划收益");
         }
 
+//        检查参数是否合法
         MpProfile mpProfile = checkParam(sign, reason, passport, operator);
         if (!mulctService.canLockBaseMulct(passport)) {
             throw new InvalidParameterException("base it is mulcting, please wait");
@@ -90,6 +94,7 @@ public class MulctController {
      * "success": true //除此结果之外, 均为失败
      * }
      */
+    @MonitorServerError
     @PostMapping("/bonus")
     public ResponseEntity bonusMulct(@RequestParam("sign") String sign,
                                      @RequestParam("code") String code,
@@ -119,3 +124,4 @@ public class MulctController {
     }
 
 }
+
