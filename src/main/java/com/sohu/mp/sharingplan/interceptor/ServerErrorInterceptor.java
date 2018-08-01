@@ -4,6 +4,7 @@ import com.sohu.mp.sharingplan.annotation.MonitorServerError;
 import com.sohu.mp.sharingplan.service.CommonApiService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,8 +19,6 @@ public class ServerErrorInterceptor extends HandlerInterceptorAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerErrorInterceptor.class);
     private static final String ERROR_EMAIL = "jinwanglv213697@sohu-inc.com";
-    private static final String BONUS = "bonus";
-    private static final String BASE = "base";
 
     @Resource
     private CommonApiService commonApiService;
@@ -32,17 +31,12 @@ public class ServerErrorInterceptor extends HandlerInterceptorAdapter {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         if (handler instanceof HandlerMethod) {
-            String title;
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            if (handlerMethod.hasMethodAnnotation(MonitorServerError.class)) {
-                if(response.getStatus()==500){
-                    if (handlerMethod.getMethod().getName().contains("base")){
-                        title = "【"+BASE+"处罚操作报错信息】";
-                    }else {
-                        title = "【"+BONUS+"处罚操作报错信息】";
-                    }
-                    commonApiService.sendEmail(title,"服务器错误", ERROR_EMAIL);
-                }
+            if (handlerMethod.hasMethodAnnotation(MonitorServerError.class)
+                    && response.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
+                String methodName = handlerMethod.getMethod().getName();
+                logger.error("[monitor server error]: method={}", methodName);
+                commonApiService.sendEmail("【分成计划处罚操作报错信息】", methodName, ERROR_EMAIL);
             }
         }
     }
