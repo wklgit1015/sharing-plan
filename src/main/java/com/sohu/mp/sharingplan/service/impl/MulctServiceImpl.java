@@ -69,7 +69,13 @@ public class MulctServiceImpl implements MulctService {
         return redisLockDao.lock(BONUS_LOCK_PREFIX, passport);
     }
 
-//    处理base罚金
+    /**
+     * 处理base罚金
+      * @param mpProfile
+     * @param operator
+     * @param periodDay
+     * @param reason
+     */
     @Override
     public void dealBaseMulct(MpProfile mpProfile, String operator, Date periodDay, String reason) {
         long userId = mpProfile.getId();
@@ -81,7 +87,7 @@ public class MulctServiceImpl implements MulctService {
         if (profit.getAmount().compareTo(BigDecimal.valueOf(0)) == 0) {
             throw new AmountCheckException("day profit is zero");
         }
-        Asset asset = checkAsset(userId, profit.getAmount()); //检查用户资产
+        Asset asset = checkAsset(userId, profit.getAmount());
         MulctDetail mulctDetail = new MulctDetail(userId, mpProfile.getPassport(),
                 profit.getRightInterestCode(),
                 StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource(), periodDay,
@@ -92,12 +98,17 @@ public class MulctServiceImpl implements MulctService {
                 mpProfile.getPassport(), periodDay, operator);
 
         redisLockDao.unLock(BASE_LOCK_PREFIX, mpProfile.getPassport());
-        String content = null;
-        content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
-        commonApiService.sendEmail("【base处罚操作结果通知】", content, operator);//发送邮件通知
+        String content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
+        commonApiService.sendEmail("【base处罚操作结果通知】", content, operator);
     }
 
-//    处理奖金罚金
+    /**
+     * 处理bouns罚金
+     * @param mpProfile
+     * @param operator
+     * @param code
+     * @param reason
+     */
     @Override
     public void dealBonusMulct(MpProfile mpProfile, String operator, String code, String reason){
         StagedRightsInterests sharingPlan = stagedRightsInterestsMapper.getByCode(code);
@@ -123,12 +134,16 @@ public class MulctServiceImpl implements MulctService {
         sharingPlanTransaction.dealBonusMulct(assetId, userId, code, mulctDetail);
         logger.info("[bonus mulct success]: passport={}, code={}, operator={}", mpProfile.getPassport(), code, operator);
         redisLockDao.unLock(BONUS_LOCK_PREFIX, mpProfile.getPassport());
-        String content = null;
-        content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
+        String content = generateMulctVM(mpProfile, mulctDetail, reason, operator);
         commonApiService.sendEmail("【bonus处罚操作结果通知】", content, operator);
     }
 
-//    检查资产
+    /**
+     * 检查资产
+     * @param userId
+     * @param mulct
+     * @return
+     */
     private Asset checkAsset(long userId, BigDecimal mulct) {
         Asset asset = assetMapper.getByUserSourceWriteSource(userId,
                 StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
@@ -141,7 +156,15 @@ public class MulctServiceImpl implements MulctService {
         return asset;
     }
 
-//    生成罚金VM
+    /**
+     *  生成罚金VM
+     * @param mpProfile
+     * @param mulctDetail
+     * @param reason
+     * @param operator
+     * @return
+     */
+
     private static String generateMulctVM(MpProfile mpProfile, MulctDetail mulctDetail,
                                           String reason, String operator){
         VelocityContext context = new VelocityContext();

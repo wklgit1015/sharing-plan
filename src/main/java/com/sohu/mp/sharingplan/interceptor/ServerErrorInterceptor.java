@@ -18,7 +18,7 @@ public class ServerErrorInterceptor extends HandlerInterceptorAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerErrorInterceptor.class);
     private static final String ERROR_EMAIL = "jinwanglv213697@sohu-inc.com";
-    private static final String BOUNS = "bonus";
+    private static final String BONUS = "bonus";
     private static final String BASE = "base";
 
     @Resource
@@ -39,7 +39,7 @@ public class ServerErrorInterceptor extends HandlerInterceptorAdapter {
                     if (handlerMethod.getMethod().getName().contains("base")){
                         title = "【"+BASE+"处罚操作报错信息】";
                     }else {
-                        title = "【"+BOUNS+"处罚操作报错信息】";
+                        title = "【"+BONUS+"处罚操作报错信息】";
                     }
                     commonApiService.sendEmail(title,"服务器错误", ERROR_EMAIL);
                 }
