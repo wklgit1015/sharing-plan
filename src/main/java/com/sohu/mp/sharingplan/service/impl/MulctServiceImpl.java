@@ -103,7 +103,7 @@ public class MulctServiceImpl implements MulctService {
     }
 
     /**
-     * 处理bouns罚金
+     * 处理bonus罚金
      * @param mpProfile
      * @param operator
      * @param code
