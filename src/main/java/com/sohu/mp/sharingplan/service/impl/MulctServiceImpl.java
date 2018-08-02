@@ -174,7 +174,7 @@ public class MulctServiceImpl implements MulctService {
         context.put("reason", reason);
         context.put("operator", operator);
         InputStream inputStream = MulctServiceImpl.class.getResourceAsStream("/template/MulctResult.vm");
-        Reader reader = null;
+        Reader reader;
         try {
             reader = new InputStreamReader(inputStream, "UTf-8");
             StringWriter writer = new StringWriter();

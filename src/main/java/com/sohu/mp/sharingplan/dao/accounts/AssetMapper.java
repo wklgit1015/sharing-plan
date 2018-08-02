@@ -23,4 +23,11 @@ public interface AssetMapper {
     })
     void addMulct(@Param("id") int id, @Param("mulct") BigDecimal mulct);
 
+    @Update({
+            "update asset",
+            "set valid_amount = valid_amount + #{withdrawRollbackAmount},withdrawing_amount = withdrawing_amount - #{withdrawRollbackAmount} ",
+            "where user_id = #{userId} and source = #{source}"
+    })
+    void withdrawRollback(@Param("userId") long userId,@Param("withdrawRollbackAmount") BigDecimal withdrawRollbackAmount,@Param("source") int source);
+
 }

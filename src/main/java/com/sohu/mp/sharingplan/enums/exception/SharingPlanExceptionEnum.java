@@ -15,9 +15,12 @@ public enum  SharingPlanExceptionEnum implements ResponseCodeMsg {
     /**
      * 无权限
      * 资产校验错误
+     * 体现状态错误
      */
     MULCT_NO_AUTH(20001, "operator no auth", UNAUTHORIZED),
-    AMOUNT_CHECK_ERROR(20001, "amount check error", BAD_REQUEST);
+    AMOUNT_CHECK_ERROR(20001, "amount check error", BAD_REQUEST),
+    WITHDRAW_STATUS_ERROR(20001,"withdraw status check error",BAD_REQUEST);
+
 
     private int code;
     private String message;

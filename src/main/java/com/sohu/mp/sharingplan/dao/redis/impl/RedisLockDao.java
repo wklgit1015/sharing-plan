@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 public class RedisLockDao extends AbstractRedisDao<String> {
 
     private static final String KEY_FORMAT = "lock_%s_%s";
-    private static final long EXPIRES = 5;
+    private static final long EXPIRES = 30;
 
     public boolean lock(String keyPrefix, String keySuffix) {
         String key = getKey(keyPrefix, keySuffix);
