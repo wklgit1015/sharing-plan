@@ -2,9 +2,12 @@ package com.sohu.mp.sharingplan.controllers.inner;
 
 import com.sohu.mp.common.exception.InvalidParameterException;
 import com.sohu.mp.common.response.SuccessResponse;
+import com.sohu.mp.common.util.DateUtil;
+import com.sohu.mp.sharingplan.annotation.MonitorServerError;
+import com.sohu.mp.sharingplan.annotation.Passport;
 import com.sohu.mp.sharingplan.model.MpProfile;
-import com.sohu.mp.sharingplan.service.CommonApiService;
 import com.sohu.mp.sharingplan.service.WithdrawService;
+import com.sohu.mp.sharingplan.util.ParamCheckUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -15,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 
@@ -27,15 +28,12 @@ public class WithdrawController {
     private static final Logger log = LoggerFactory.getLogger(WithdrawController.class);
 
     @Resource
-    private CommonApiService commonApiService;
-
-    @Resource
     private WithdrawService withdrawService;
 
     /**
      * @api {POST} /inner/withdraw/rollback 提现相关接口
      * @apiName withdrawRollback
-     * @apiGroup  withdraw
+     * @apiGroup withdraw
      * @apiParam {String} sign 权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
      * @apiParam {String} passport 自媒体passport
@@ -48,22 +46,22 @@ public class WithdrawController {
      * "success": true //除此结果之外, 均为失败
      * }
      */
+    @MonitorServerError
     @PostMapping("/rollback")
-    public ResponseEntity withdrawRollback(@RequestParam("sign") String sign,
-                                       @RequestParam("reason") String reason,
-                                       @RequestParam("passport") String passport,
-                                       @RequestParam("operator") String operator,
-                                       @DateTimeFormat(pattern="yyyy-MM")Date withdrawDate){
-        if (withdrawDate == null) {
-            throw new InvalidParameterException("withdrawDate param is null");
+    public ResponseEntity withdrawRollback(@Passport MpProfile mpProfile,
+                                           @RequestParam("sign") String sign,
+                                           @RequestParam("reason") String reason,
+                                           @RequestParam("operator") String operator,
+                                           @DateTimeFormat(pattern = "yyyy-MM") Date withdrawMonth) {
+        ParamCheckUtil.checkOperatorAuth(sign, reason, operator);
+        if (withdrawMonth == null) {
+            throw new InvalidParameterException("withdrawMonth param is null");
         }
-        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM ");
-        String date = formatter.format(withdrawDate);
-        MpProfile mpProfile = commonApiService.checkParam(sign,reason,passport,operator);
-        if (!withdrawService.canLockWithdraw(passport)) {
+        String month = DateUtil.getMonthStr(withdrawMonth);
+        if (!withdrawService.canLockWithdraw(mpProfile.getPassport())) {
             throw new InvalidParameterException("withdraw rollback is on progress, please wait");
         }
-        withdrawService.withdrawRollback(mpProfile,date,reason);
+        withdrawService.withdrawRollback(mpProfile, month, reason);
         return SuccessResponse.INSTANCE;
     }
 
