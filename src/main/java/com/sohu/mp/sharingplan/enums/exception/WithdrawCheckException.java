@@ -5,11 +5,11 @@ import com.sohu.mp.common.exception.BaseException;
 /**
  * @author kailiwang
  */
-public class WithdrawStatusCheckException extends BaseException {
+public class WithdrawCheckException extends BaseException {
 
     private static final long serialVersionUID = -2833840126284044526L;
 
-    public WithdrawStatusCheckException(String detail){
+    public WithdrawCheckException(String detail){
         super(SharingPlanExceptionEnum.WITHDRAW_STATUS_ERROR,detail);
     }
 

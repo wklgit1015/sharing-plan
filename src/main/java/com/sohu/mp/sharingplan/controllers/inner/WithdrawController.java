@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 
@@ -57,12 +56,10 @@ public class WithdrawController {
         if (withdrawDate == null) {
             throw new InvalidParameterException("withdrawDate param is null");
         }
-        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM ");
+        SimpleDateFormat formatter = new SimpleDateFormat( "yyyy-MM");
         String date = formatter.format(withdrawDate);
         MpProfile mpProfile = commonApiService.checkParam(sign,reason,passport,operator);
-        if (!withdrawService.canLockWithdraw(passport)) {
-            throw new InvalidParameterException("withdraw rollback is on progress, please wait");
-        }
+
         withdrawService.withdrawRollback(mpProfile,date,reason);
         return SuccessResponse.INSTANCE;
     }

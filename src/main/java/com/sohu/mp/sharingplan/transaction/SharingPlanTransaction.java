@@ -37,7 +37,6 @@ public class SharingPlanTransaction {
     @Resource
     private WithdrawProcessMapper withdrawProcessMapper;
 
-    private static final Logger log =  LoggerFactory.getLogger(SharingPlanTransaction.class);
     @Transactional(value = "mpTransaction", rollbackFor = Exception.class)
     public void dealBaseMulct(int assetId, int profitId, MulctDetail mulctDetail) {
         assetMapper.addMulct(assetId, mulctDetail.getAmount());
@@ -59,7 +58,6 @@ public class SharingPlanTransaction {
     public void dealWithdrawRollback(long userId, String date, Withdraw withdraw,WithdrawProgress withdrawProgress){
         assetMapper.withdrawRollback(userId,withdraw.getAmount(),StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
         withdrawMapper.updateWithdrawStatus(userId,date,WithdrawStatusEnum.FAIL.getValue());
-        log.info(String.valueOf(WithdrawStatusEnum.FAIL.getValue()));
         withdrawProcessMapper.add(withdrawProgress);
     }
 
