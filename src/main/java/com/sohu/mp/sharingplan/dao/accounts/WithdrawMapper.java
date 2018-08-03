@@ -15,12 +15,12 @@ public interface WithdrawMapper {
             "select * from withdraw where user_id = #{userId} and create_time like CONCAT(#{date},'%')"
     })
     @WriteDatasource
-    Withdraw getByUserIdAndDate(@Param("userId")long userId, @Param("date")String date);
+    Withdraw getByUserIdAndDate(@Param("userId") long userId, @Param("date") String date);
 
     @Update({
             "update withdraw set status = #{status} where user_id = #{userId} and create_time like CONCAT(#{date},'%')"
     })
-    void updateWithdrawStatus(@Param("userId") long userId, @Param("date")String date,@Param("status") int status);
+    void updateWithdrawStatus(@Param("userId") long userId, @Param("date") String date, @Param("status") int status);
 
 
 }

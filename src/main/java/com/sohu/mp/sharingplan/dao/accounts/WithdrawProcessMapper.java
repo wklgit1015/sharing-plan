@@ -13,5 +13,5 @@ public interface WithdrawProcessMapper {
             "(withdraw_id,user_id,type,detail,create_time)values",
             "(#{progress.withdrawId},#{progress.userId},#{progress.type},#{progress.detail},#{progress.createTime})"
     })
-    void add(@Param("progress")WithdrawProgress progress);
+    void add(@Param("progress") WithdrawProgress progress);
 }

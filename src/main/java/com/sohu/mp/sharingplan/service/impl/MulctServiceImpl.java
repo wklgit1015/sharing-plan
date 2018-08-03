@@ -36,7 +36,6 @@ public class MulctServiceImpl implements MulctService {
 
     private static final String BASE_LOCK_PREFIX = "base_mulct";
     private static final String BONUS_LOCK_PREFIX = "bonus_mulct";
-    private static final String ERROR_EMAIL = "jinwanglv213697@sohu-inc.com";
 
     @Resource
     private AssetMapper assetMapper;
@@ -71,7 +70,8 @@ public class MulctServiceImpl implements MulctService {
 
     /**
      * 处理base罚金
-      * @param mpProfile
+     *
+     * @param mpProfile
      * @param operator
      * @param periodDay
      * @param reason
@@ -104,13 +104,14 @@ public class MulctServiceImpl implements MulctService {
 
     /**
      * 处理bonus罚金
+     *
      * @param mpProfile
      * @param operator
      * @param code
      * @param reason
      */
     @Override
-    public void dealBonusMulct(MpProfile mpProfile, String operator, String code, String reason){
+    public void dealBonusMulct(MpProfile mpProfile, String operator, String code, String reason) {
         StagedRightsInterests sharingPlan = stagedRightsInterestsMapper.getByCode(code);
         if (sharingPlan == null || sharingPlan.getStartTime().compareTo(DateUtil.getPreFirstDayOfMonth(1)) != 0) {
             throw new InvalidParameterException("无效code, 只能处罚上月bonus");
@@ -140,6 +141,7 @@ public class MulctServiceImpl implements MulctService {
 
     /**
      * 检查资产
+     *
      * @param userId
      * @param mulct
      * @return
@@ -157,7 +159,8 @@ public class MulctServiceImpl implements MulctService {
     }
 
     /**
-     *  生成罚金VM
+     * 生成罚金VM
+     *
      * @param mpProfile
      * @param mulctDetail
      * @param reason
@@ -166,7 +169,7 @@ public class MulctServiceImpl implements MulctService {
      */
 
     private static String generateMulctVM(MpProfile mpProfile, MulctDetail mulctDetail,
-                                          String reason, String operator){
+                                          String reason, String operator) {
         VelocityContext context = new VelocityContext();
         context.put("mpProfile", mpProfile);
         context.put("amount", mulctDetail.getAmount());
@@ -179,13 +182,13 @@ public class MulctServiceImpl implements MulctService {
             reader = new InputStreamReader(inputStream, "UTf-8");
             StringWriter writer = new StringWriter();
             Velocity.evaluate(context, writer, "", reader);
-            String result =writer.toString();
+            String result = writer.toString();
             inputStream.close();
             reader.close();
             writer.close();
             return result;
         } catch (IOException e) {
-            logger.error("Velocity模板填充失败",e);
+            logger.error("Velocity模板填充失败", e);
             throw new ServerErrorException();
         }
     }

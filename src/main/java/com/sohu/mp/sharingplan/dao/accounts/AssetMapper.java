@@ -28,6 +28,6 @@ public interface AssetMapper {
             "set valid_amount = valid_amount + #{withdrawRollbackAmount},withdrawing_amount = withdrawing_amount - #{withdrawRollbackAmount} ",
             "where user_id = #{userId} and source = #{source}"
     })
-    void withdrawRollback(@Param("userId") long userId,@Param("withdrawRollbackAmount") BigDecimal withdrawRollbackAmount,@Param("source") int source);
+    void withdrawRollback(@Param("userId") long userId, @Param("withdrawRollbackAmount") BigDecimal withdrawRollbackAmount, @Param("source") int source);
 
 }

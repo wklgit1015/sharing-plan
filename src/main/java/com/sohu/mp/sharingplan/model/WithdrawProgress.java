@@ -2,7 +2,6 @@ package com.sohu.mp.sharingplan.model;
 
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -19,8 +18,8 @@ public class WithdrawProgress {
 
     private Withdraw withdraw;
 
-    public WithdrawProgress(int withdrawId,int userId,int type,String detail,Date createTime) {
-        this.withdrawId= withdrawId;
+    public WithdrawProgress(int withdrawId, int userId, int type, String detail, Date createTime) {
+        this.withdrawId = withdrawId;
         this.userId = userId;
         this.type = type;
         this.detail = detail;

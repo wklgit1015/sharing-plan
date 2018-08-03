@@ -38,14 +38,14 @@
             <th>处罚金额</th>
             <th>操作人</th>
         </tr>
-            <tr>
-                <td>$mpProfile.userName</td>
-                <td>$mpProfile.passport</td>
-                <td>$periodDay</td>
-                <td>$reason</td>
-                <td>$amount</td>
-                <td>$operator</td>
-            </tr>
+        <tr>
+            <td>$mpProfile.userName</td>
+            <td>$mpProfile.passport</td>
+            <td>$periodDay</td>
+            <td>$reason</td>
+            <td>$amount</td>
+            <td>$operator</td>
+        </tr>
         </tbody>
     </table>
 </div>

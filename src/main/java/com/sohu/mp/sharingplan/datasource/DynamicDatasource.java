@@ -45,8 +45,7 @@ public class DynamicDatasource extends AbstractRoutingDataSource {
         return DynamicDataSourceHolder.getDataSourceKey();
     }
 
-    public String getCurrentDatasourceKey()
-    {
+    public String getCurrentDatasourceKey() {
         return DynamicDataSourceHolder.getDataSourceKey();
     }
 }

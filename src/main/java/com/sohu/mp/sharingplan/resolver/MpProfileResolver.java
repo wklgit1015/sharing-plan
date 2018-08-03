@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2018/8/3
  */
 @Component
-public class MpProfileResolver  implements HandlerMethodArgumentResolver {
+public class MpProfileResolver implements HandlerMethodArgumentResolver {
 
     @Resource
     private MpProfileService mpProfileService;

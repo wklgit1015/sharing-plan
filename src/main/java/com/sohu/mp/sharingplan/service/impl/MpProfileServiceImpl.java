@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 @Service
-public class MpProfileServiceImpl implements MpProfileService{
+public class MpProfileServiceImpl implements MpProfileService {
 
     @Resource
     private MpProfileMapper mpProfileMapper;

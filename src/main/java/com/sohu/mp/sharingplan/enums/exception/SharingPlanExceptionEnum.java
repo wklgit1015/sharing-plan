@@ -10,7 +10,7 @@ import static org.springframework.http.HttpStatus.UNAUTHORIZED;
  * @author lvjinwang
  */
 
-public enum  SharingPlanExceptionEnum implements ResponseCodeMsg {
+public enum SharingPlanExceptionEnum implements ResponseCodeMsg {
 
     /**
      * 无权限
@@ -19,7 +19,7 @@ public enum  SharingPlanExceptionEnum implements ResponseCodeMsg {
      */
     MULCT_NO_AUTH(20001, "operator no auth", UNAUTHORIZED),
     AMOUNT_CHECK_ERROR(20001, "amount check error", BAD_REQUEST),
-    WITHDRAW_STATUS_ERROR(20001,"withdraw status check error",BAD_REQUEST);
+    WITHDRAW_STATUS_ERROR(20001, "withdraw check error", BAD_REQUEST);
 
 
     private int code;

@@ -16,10 +16,10 @@
 
     <springProfile name="dev">
         <root level="INFO">
-            <appender-ref ref="Console" />
+            <appender-ref ref="Console"/>
         </root>
         <logger name="com.sohu.mp" level="DEBUG" additivity="false">
-            <appender-ref ref="Console" />
+            <appender-ref ref="Console"/>
         </logger>
     </springProfile>
 
@@ -36,13 +36,13 @@
         </appender>
 
         <root level="WARN">
-            <appender-ref ref="RunLog" />
+            <appender-ref ref="RunLog"/>
         </root>
         <logger name="com.sohu.mp.sharingplan" level="INFO" additivity="false">
-            <appender-ref ref="RunLog" />
+            <appender-ref ref="RunLog"/>
         </logger>
         <logger name="com.sohu.mp.common.aop" level="INFO" additivity="false">
-            <appender-ref ref="RunLog" />
+            <appender-ref ref="RunLog"/>
         </logger>
     </springProfile>
 
