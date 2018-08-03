@@ -4,9 +4,10 @@ import com.sohu.mp.common.exception.InvalidParameterException;
 import com.sohu.mp.common.response.SuccessResponse;
 import com.sohu.mp.common.util.DateUtil;
 import com.sohu.mp.sharingplan.annotation.MonitorServerError;
+import com.sohu.mp.sharingplan.annotation.Passport;
 import com.sohu.mp.sharingplan.model.MpProfile;
-import com.sohu.mp.sharingplan.service.CommonApiService;
 import com.sohu.mp.sharingplan.service.MulctService;
+import com.sohu.mp.sharingplan.util.ParamCheckUtil;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,11 +22,6 @@ import java.util.Date;
 @RestController
 @RequestMapping("/inner/mulct")
 public class MulctController {
-
-//    private static final Logger logger = LoggerFactory.getLogger(MulctController.class);
-
-    @Resource
-    private CommonApiService commonApiService;
 
     @Resource
     private MulctService mulctService;
@@ -48,11 +44,12 @@ public class MulctController {
      */
     @MonitorServerError
     @PostMapping("/base")
-    public ResponseEntity baseMulct(@RequestParam("sign") String sign,
+    public ResponseEntity baseMulct(@Passport MpProfile mpProfile,
+                                    @RequestParam("sign") String sign,
                                     @RequestParam("reason") String reason,
-                                    @RequestParam("passport") String passport,
                                     @RequestParam("operator") String operator,
                                     @DateTimeFormat(pattern = "yyyy-MM-dd") Date periodDay) {
+        ParamCheckUtil.checkOperatorAuth(sign, reason, operator);
         if (periodDay == null) {
             throw new InvalidParameterException("periodDay param is null");
         }
@@ -65,9 +62,7 @@ public class MulctController {
             throw new InvalidParameterException("只能处罚当月计划收益");
         }
 
-//      检查参数是否合法
-        MpProfile mpProfile = commonApiService.checkParam(sign, reason, passport, operator);
-        if (!mulctService.canLockBaseMulct(passport)) {
+        if (!mulctService.canLockBaseMulct(mpProfile.getPassport())) {
             throw new InvalidParameterException("base it is mulcting, please wait");
         }
         mulctService.dealBaseMulct(mpProfile, operator, periodDay, reason);
@@ -92,13 +87,13 @@ public class MulctController {
      */
     @MonitorServerError
     @PostMapping("/bonus")
-    public ResponseEntity bonusMulct(@RequestParam("sign") String sign,
+    public ResponseEntity bonusMulct(@Passport MpProfile mpProfile,
+                                     @RequestParam("sign") String sign,
                                      @RequestParam("code") String code,
                                      @RequestParam("reason") String reason,
-                                     @RequestParam("passport") String passport,
                                      @RequestParam("operator") String operator) {
-        MpProfile mpProfile = commonApiService.checkParam(sign, reason, passport, operator);
-        if (!mulctService.canLockBonusMulct(passport)) {
+        ParamCheckUtil.checkOperatorAuth(sign, reason, operator);
+        if (!mulctService.canLockBonusMulct(mpProfile.getPassport())) {
             throw new InvalidParameterException("bonus it is mulcting, please wait");
         }
         mulctService.dealBonusMulct(mpProfile, operator, code, reason);
