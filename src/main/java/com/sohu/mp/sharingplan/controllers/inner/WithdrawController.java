@@ -31,19 +31,19 @@ public class WithdrawController {
     private WithdrawService withdrawService;
 
     /**
-     * @api {POST} /inner/withdraw/rollback 提现相关接口
+     * @api {POST} /inner/withdraw/rollback 提现回滚接口
      * @apiName withdrawRollback
      * @apiGroup  withdraw
-     * @apiParam {String} sign 权限验证码, 找mp开通
+     * @apiParam {String} sign   权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
      * @apiParam {String} passport 自媒体passport
      * @apiParam {String} operator 操作人公司邮箱地址
-     * @apiParam {Date} withdrawMonth 提现日期，每个月只能提现一次， 格式: yyyy-MM
+     * @apiParam {Date} withdrawMonth 提现创建月份，每个月只能提现一次， 格式: yyyy-MM
      * @apiSuccess (200){json} responseBody success
      * @apiSuccessExample Success-Response
      * HTTP/1.1 200 OK
      * {
-     * "success": true //除此结果之外, 均为失败
+     * "success": true //除此结果之外, 均为失败，只有mp待处理的提现(WithdrawStatusEnum.PENDING(0))才能调用此接口
      * }
      */
     @PostMapping("/rollback")
