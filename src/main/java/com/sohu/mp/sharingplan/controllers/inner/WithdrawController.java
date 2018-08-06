@@ -3,9 +3,9 @@ package com.sohu.mp.sharingplan.controllers.inner;
 import com.sohu.mp.common.exception.InvalidParameterException;
 import com.sohu.mp.common.response.SuccessResponse;
 import com.sohu.mp.common.util.DateUtil;
-import com.sohu.mp.sharingplan.annotation.MonitorServerError;
 import com.sohu.mp.sharingplan.annotation.Passport;
 import com.sohu.mp.sharingplan.model.MpProfile;
+import com.sohu.mp.sharingplan.service.CommonApiService;
 import com.sohu.mp.sharingplan.service.WithdrawService;
 import com.sohu.mp.sharingplan.util.ParamCheckUtil;
 import org.slf4j.Logger;
@@ -33,7 +33,7 @@ public class WithdrawController {
     /**
      * @api {POST} /inner/withdraw/rollback 提现相关接口
      * @apiName withdrawRollback
-     * @apiGroup withdraw
+     * @apiGroup  withdraw
      * @apiParam {String} sign 权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
      * @apiParam {String} passport 自媒体passport
@@ -46,22 +46,19 @@ public class WithdrawController {
      * "success": true //除此结果之外, 均为失败
      * }
      */
-    @MonitorServerError
     @PostMapping("/rollback")
     public ResponseEntity withdrawRollback(@Passport MpProfile mpProfile,
-                                           @RequestParam("sign") String sign,
-                                           @RequestParam("reason") String reason,
-                                           @RequestParam("operator") String operator,
-                                           @DateTimeFormat(pattern = "yyyy-MM") Date withdrawMonth) {
+                                       @RequestParam("sign") String sign,
+                                       @RequestParam("reason") String reason,
+                                       @RequestParam("operator") String operator,
+                                       @DateTimeFormat(pattern="yyyy-MM")Date withdrawDate){
         ParamCheckUtil.checkOperatorAuth(sign, reason, operator);
-        if (withdrawMonth == null) {
-            throw new InvalidParameterException("withdrawMonth param is null");
+        if (withdrawDate == null) {
+            throw new InvalidParameterException("withdrawDate param is null");
         }
-        String month = DateUtil.getMonthStr(withdrawMonth);
-        if (!withdrawService.canLockWithdraw(mpProfile.getPassport())) {
-            throw new InvalidParameterException("withdraw rollback is on progress, please wait");
-        }
-        withdrawService.withdrawRollback(mpProfile, month, reason);
+        String  date = DateUtil.getMonthStr(withdrawDate);
+
+        withdrawService.withdrawRollback(mpProfile,date,reason);
         return SuccessResponse.INSTANCE;
     }
 

@@ -43,6 +43,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     @Override
     public boolean canLockWithdraw(String withdrawId) {
         return redisLockDao.lock(WITHDRAW_LOCK_PREFIX, withdrawId);
+
     }
 
     @Override

@@ -22,6 +22,7 @@ public enum SharingPlanExceptionEnum implements ResponseCodeMsg {
     WITHDRAW_STATUS_ERROR(20001, "withdraw check error", BAD_REQUEST);
 
 
+
     private int code;
     private String message;
     private HttpStatus httpStatus;
