@@ -39,6 +39,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     private AssetMapper assetMapper;
 
     private static final String WITHDRAW_LOCK_PREFIX = "withdraw";
+    private static final String OPERATOR_DETAIL = "%s，操作人：%s";
 
     @Override
     public boolean canLockWithdraw(String withdrawId) {
@@ -47,7 +48,7 @@ public class WithdrawServiceImpl implements WithdrawService {
     }
 
     @Override
-    public void withdrawRollback(MpProfile mpProfile, String date, String reason) {
+    public void withdrawRollback(MpProfile mpProfile, String date, String reason,String operator) {
         long userId = mpProfile.getId();
         Withdraw withdraw = withdrawMapper.getByUserIdAndDate(userId, date);
         if (withdraw == null) {
@@ -64,8 +65,10 @@ public class WithdrawServiceImpl implements WithdrawService {
             // 用户资产中的withdrawing amount小于正在提现的amount
             throw new WithdrawCheckException("asset withdrawing amount less than this withdrawing amount");
         }
+        String detail = String.format(OPERATOR_DETAIL,String.format(WithdrawProgressEnum.ROLLBACK.getDetail(), reason),operator);
+
         WithdrawProgress withdrawProgress = new WithdrawProgress(withdraw.getId(), new Long(userId).intValue(),
-                WithdrawProgressEnum.ROLLBACK.getType(), String.format(WithdrawProgressEnum.ROLLBACK.getDetail(), reason), new Date());
+                WithdrawProgressEnum.ROLLBACK.getType(), detail, new Date());
         sharingPlanTransaction.dealWithdrawRollback(userId, date, withdraw, withdrawProgress);
         redisLockDao.unLock(WITHDRAW_LOCK_PREFIX, String.valueOf(withdraw.getId()));
     }

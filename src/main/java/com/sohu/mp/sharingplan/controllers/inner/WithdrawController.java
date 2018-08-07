@@ -53,7 +53,7 @@ public class WithdrawController {
         }
         String date = DateUtil.getMonthStr(withdrawDate);
 
-        withdrawService.withdrawRollback(mpProfile, date, reason);
+        withdrawService.withdrawRollback(mpProfile, date, reason,operator);
         return SuccessResponse.INSTANCE;
     }
 

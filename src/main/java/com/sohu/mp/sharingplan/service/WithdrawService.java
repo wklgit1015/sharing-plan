@@ -6,5 +6,5 @@ public interface WithdrawService {
 
     boolean canLockWithdraw(String passport);
 
-    void withdrawRollback(MpProfile mpProfile, String date, String reason);
+    void withdrawRollback(MpProfile mpProfile, String date, String reason,String operator);
 }
