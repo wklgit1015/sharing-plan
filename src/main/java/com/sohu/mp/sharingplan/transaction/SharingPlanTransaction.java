@@ -52,7 +52,7 @@ public class SharingPlanTransaction {
 
     @Transactional(value = "mpTransaction", rollbackFor = Exception.class)
     public void dealWithdrawRollback(long userId, String date, Withdraw withdraw, WithdrawProgress withdrawProgress) {
-        assetMapper.withdrawRollback(userId, withdraw.getAmount(), StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
+        assetMapper.withdrawRollback(userId, withdraw.getTotal(), StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
         withdrawMapper.updateWithdrawStatus(userId, date, WithdrawStatusEnum.FAIL.getValue());
         withdrawProcessMapper.add(withdrawProgress);
     }

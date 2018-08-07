@@ -5,11 +5,8 @@ import com.sohu.mp.common.response.SuccessResponse;
 import com.sohu.mp.common.util.DateUtil;
 import com.sohu.mp.sharingplan.annotation.Passport;
 import com.sohu.mp.sharingplan.model.MpProfile;
-import com.sohu.mp.sharingplan.service.CommonApiService;
 import com.sohu.mp.sharingplan.service.WithdrawService;
 import com.sohu.mp.sharingplan.util.ParamCheckUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,15 +22,13 @@ import java.util.Date;
 @RequestMapping("/inner/withdraw")
 public class WithdrawController {
 
-    private static final Logger log = LoggerFactory.getLogger(WithdrawController.class);
-
     @Resource
     private WithdrawService withdrawService;
 
     /**
      * @api {POST} /inner/withdraw/rollback 提现回滚接口
      * @apiName withdrawRollback
-     * @apiGroup  withdraw
+     * @apiGroup withdraw
      * @apiParam {String} sign   权限验证码, 找mp开通
      * @apiParam {String} reason 罚金原因
      * @apiParam {String} passport 自媒体passport
@@ -48,17 +43,17 @@ public class WithdrawController {
      */
     @PostMapping("/rollback")
     public ResponseEntity withdrawRollback(@Passport MpProfile mpProfile,
-                                       @RequestParam("sign") String sign,
-                                       @RequestParam("reason") String reason,
-                                       @RequestParam("operator") String operator,
-                                       @DateTimeFormat(pattern="yyyy-MM")Date withdrawDate){
+                                           @RequestParam("sign") String sign,
+                                           @RequestParam("reason") String reason,
+                                           @RequestParam("operator") String operator,
+                                           @DateTimeFormat(pattern = "yyyy-MM") Date withdrawDate) {
         ParamCheckUtil.checkOperatorAuth(sign, reason, operator);
         if (withdrawDate == null) {
             throw new InvalidParameterException("withdrawDate param is null");
         }
-        String  date = DateUtil.getMonthStr(withdrawDate);
+        String date = DateUtil.getMonthStr(withdrawDate);
 
-        withdrawService.withdrawRollback(mpProfile,date,reason);
+        withdrawService.withdrawRollback(mpProfile, date, reason);
         return SuccessResponse.INSTANCE;
     }
 
