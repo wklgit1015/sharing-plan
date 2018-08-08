@@ -60,9 +60,9 @@ public class WithdrawServiceImpl implements WithdrawService {
             throw new InvalidParameterException("withdraw is rolling back, please wait");
         }
         Asset asset = assetMapper.getByUserSourceWriteSource(userId, StagedRightsInterestsEnum.FLOW_RIGHTS_INTEREST.getSource());
-        if (asset.getWithdrawingAmount().subtract(withdraw.getAmount()).compareTo(BigDecimal.valueOf(0)) < 0) {
+        if (asset.getWithdrawingAmount().subtract(withdraw.getTotal()).compareTo(BigDecimal.valueOf(0)) < 0) {
             // 用户资产中的withdrawing amount小于正在提现的amount
-            throw new WithdrawCheckException("asset withdrawing amount less than this withdrawing amount");
+            throw new WithdrawCheckException("asset withdrawing amount less than this withdrawing total");
         }
         WithdrawProgress withdrawProgress = new WithdrawProgress(withdraw.getId(), new Long(userId).intValue(),
                 WithdrawProgressEnum.ROLLBACK.getType(), WithdrawProgressEnum.ROLLBACK.getDetail(),

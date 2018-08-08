@@ -33,7 +33,7 @@ public class WithdrawController {
      * @apiParam {String} reason 罚金原因
      * @apiParam {String} passport 自媒体passport
      * @apiParam {String} operator 操作人公司邮箱地址
-     * @apiParam {Date} withdrawMonth 提现创建月份，每个月只能提现一次， 格式: yyyy-MM
+     * @apiParam {Date} withdrawDate 提现创建年月，每个月只能提现一次， 格式: yyyyMM
      * @apiSuccess (200){json} responseBody success
      * @apiSuccessExample Success-Response
      * HTTP/1.1 200 OK
@@ -46,7 +46,7 @@ public class WithdrawController {
                                            @RequestParam("sign") String sign,
                                            @RequestParam("reason") String reason,
                                            @RequestParam("operator") String operator,
-                                           @DateTimeFormat(pattern = "yyyy-MM") Date withdrawDate) {
+                                           @DateTimeFormat(pattern = "yyyyMM") Date withdrawDate) {
         ParamCheckUtil.checkOperatorAuth(sign, reason, operator);
         if (withdrawDate == null) {
             throw new InvalidParameterException("withdrawDate param is null");
