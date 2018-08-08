@@ -10,8 +10,9 @@ public interface WithdrawProcessMapper {
 
     @Insert({
             "insert into withdraw_progress",
-            "(withdraw_id,user_id,type,detail,create_time)values",
-            "(#{progress.withdrawId},#{progress.userId},#{progress.type},#{progress.detail},#{progress.createTime})"
+            "(withdraw_id,user_id,type,detail,create_time,operator,reason)values",
+            "(#{progress.withdrawId},#{progress.userId},#{progress.type},#{progress.detail},",
+            "#{progress.createTime},#{progress.operator},#{progress.reason})"
     })
     void add(@Param("progress") WithdrawProgress progress);
 }
